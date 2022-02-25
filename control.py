@@ -11,6 +11,8 @@ class Controls:
     export_alive_color = "#f2f2f2"
     export_dead_color = "#5b5c5c"
     export_running = False
+    estimated_time = 0
+    export_progress = 0
     def __init__(self):
         self.set_speed(self.speed)
 

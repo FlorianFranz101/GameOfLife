@@ -53,6 +53,7 @@ class GameLoop:
                 self.ctrl.cellschanged = False
                 self.cellsize = self.get_cell_size(self.surface.get_size()[0], self.surface.get_size()[1],
                                                    self.ctrl.cellsx, self.ctrl.cellsy)
+            self.ui.update()
             self.game.draw_board(self.surface, self.cellsize)
             self.manager.update(time_delta)
             self.manager.draw_ui(self.surface)

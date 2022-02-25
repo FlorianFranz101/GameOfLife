@@ -2,8 +2,9 @@ import pygame
 import pygame_gui
 import numpy as np
 from rle_converter import read_board_from_string
-
-
+from video_export import VideoExport
+import datetime
+import threading
 class UIElements:
     def __init__(self, game, ctrl, gameloop):
         self.game = game
@@ -61,15 +62,13 @@ class UIElements:
         video_export_fps.topleft = (50, 275)
 
         video_export_start_btn = pygame.Rect(0, 0, 300, 300)
-        video_export_start_btn.topleft = ( 300, 50)
-
+        video_export_start_btn.topleft = (300, 50)
 
         video_export_label = pygame.Rect(0, 0, 300, 50)
         video_export_label.topleft = (0, 0)
 
         video_export_time_left_label = pygame.Rect(0, 0, 300, 50)
         video_export_time_left_label.topleft = (0, 50)
-
 
         video_export_time_left = pygame.Rect(0, 0, 150, 50)
         video_export_time_left.topleft = (160, 50)
@@ -141,7 +140,7 @@ class UIElements:
                                                                       'right': 'right',
                                                                       'top': 'top',
                                                                       'bottom': 'bottom'}
-                                                            )
+                                                             )
         self.import_btn = pygame_gui.elements.UIButton(relative_rect=import_btn,
                                                        text="Import",
                                                        manager=manager,
@@ -163,15 +162,17 @@ class UIElements:
                                                                             'top': 'bottom',
                                                                             'bottom': 'bottom',
                                                                             "right_target": self.reset_board_btn})
-        self.video_export_simulation_steps = pygame_gui.elements.UITextEntryLine(relative_rect=video_export_simulation_steps,
-                                                                                 manager=manager,
-                                                                                 container=self.dialog_panel)
+        self.video_export_simulation_steps = pygame_gui.elements.UITextEntryLine(
+            relative_rect=video_export_simulation_steps,
+            manager=manager,
+            container=self.dialog_panel)
         self.video_export_simulation_steps.set_text("100")
-        self.video_export_simulation_steps_label = pygame_gui.elements.UILabel(relative_rect=video_export_simulation_steps_label,
-                                                                               text= "Simulation time steps",
-                                                                               manager=manager,
-                                                                               container=self.dialog_panel)
-        self.video_export_abort_btn = pygame_gui.elements.UIButton(relative_rect= video_export_abort_btn,
+        self.video_export_simulation_steps_label = pygame_gui.elements.UILabel(
+            relative_rect=video_export_simulation_steps_label,
+            text="Simulation time steps",
+            manager=manager,
+            container=self.dialog_panel)
+        self.video_export_abort_btn = pygame_gui.elements.UIButton(relative_rect=video_export_abort_btn,
                                                                    text="Abort",
                                                                    manager=manager,
                                                                    container=self.dialog_panel)
@@ -180,55 +181,58 @@ class UIElements:
                                                                   text="00:00",
                                                                   manager=manager,
                                                                   container=self.dialog_panel)
-        self.video_export_time_left_label = pygame_gui.elements.UILabel(relative_rect= video_export_time_left_label,
-                                                                        text = "übrige Zeit:",
+        self.video_export_time_left_label = pygame_gui.elements.UILabel(relative_rect=video_export_time_left_label,
+                                                                        text="übrige Zeit:",
                                                                         manager=manager,
                                                                         container=self.dialog_panel)
-        self.video_export_progress_bar = pygame_gui.elements.UILabel(relative_rect= video_export_progress_bar,
-                                                                           text="0%",
-                                                                           manager=manager,
-                                                                           container=self.dialog_panel)
-        self.video_export_label = pygame_gui.elements.UILabel(relative_rect= video_export_label,
-                                                              text = "Video wird exportiert..",
+        self.video_export_progress_bar = pygame_gui.elements.UILabel(relative_rect=video_export_progress_bar,
+                                                                     text="0%",
+                                                                     manager=manager,
+                                                                     container=self.dialog_panel)
+        self.video_export_label = pygame_gui.elements.UILabel(relative_rect=video_export_label,
+                                                              text="Video wird exportiert..",
                                                               manager=manager,
                                                               container=self.dialog_panel)
         self.video_export_open_btn = pygame_gui.elements.UIButton(relative_rect=video_export_open_btn,
-                                                                  text= "Export Video",
+                                                                  text="Export Video",
                                                                   manager=manager,
                                                                   anchors={'left': 'right',
                                                                            'right': 'right',
                                                                            'top': 'bottom',
                                                                            'bottom': 'bottom',
                                                                            "right_target": self.open_import_dialog_btn})
-        self.video_export_color_dead_field = pygame_gui.elements.UITextEntryLine(relative_rect=video_export_color_dead_field,
-                                                                            manager=manager,
-                                                                            container=self.dialog_panel)
+        self.video_export_color_dead_field = pygame_gui.elements.UITextEntryLine(
+            relative_rect=video_export_color_dead_field,
+            manager=manager,
+            container=self.dialog_panel)
         self.video_export_color_dead_field.set_text("#5b5c5c")
         self.video_export_color_dead_label = pygame_gui.elements.UILabel(relative_rect=video_export_color_dead_label,
-                                                                         text = "Farbe von toten Zellen",
-                                                                          manager=manager,
-                                                                          container=self.dialog_panel)
-        self.video_export_color_alive_field = pygame_gui.elements.UITextEntryLine(relative_rect=video_export_color_alive_field,
-                                                                                 manager=manager,
-                                                                                 container=self.dialog_panel)
+                                                                         text="Farbe von toten Zellen",
+                                                                         manager=manager,
+                                                                         container=self.dialog_panel)
+        self.video_export_color_alive_field = pygame_gui.elements.UITextEntryLine(
+            relative_rect=video_export_color_alive_field,
+            manager=manager,
+            container=self.dialog_panel)
         self.video_export_color_alive_field.set_text("#f2f2f2")
         self.video_export_color_alive_label = pygame_gui.elements.UILabel(relative_rect=video_export_color_alive_label,
-                                                                          text = "Farbe von lebendigen Zellen",
-                                                                     manager=manager,
-                                                                     container=self.dialog_panel)
+                                                                          text="Farbe von lebendigen Zellen",
+                                                                          manager=manager,
+                                                                          container=self.dialog_panel)
 
         self.video_export_fps = pygame_gui.elements.UITextEntryLine(relative_rect=video_export_fps,
-                                                                                 manager=manager,
-                                                                                 container=self.dialog_panel)
+                                                                    manager=manager,
+                                                                    container=self.dialog_panel)
         self.video_export_fps.set_text("10")
         self.video_export_fps_label = pygame_gui.elements.UILabel(relative_rect=video_export_fps_label,
-                                                                           text= "Time steps per second",
-                                                                           manager=manager,
-                                                                           container=self.dialog_panel)
+                                                                  text="Time steps per second",
+                                                                  manager=manager,
+                                                                  container=self.dialog_panel)
         self.video_export_start_btn = pygame_gui.elements.UIButton(relative_rect=video_export_start_btn,
-                                                                   text = "Video Export starten",
+                                                                   text="Video Export starten",
                                                                    manager=manager,
                                                                    container=self.dialog_panel)
+
     def handle_event(self, event):
         # Speed
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
@@ -256,26 +260,7 @@ class UIElements:
                 self.import_textfield.visible = setto
                 self.import_info.visible = setto
             if event.ui_element == self.dialog_close_btn:
-                # turn off everything that could be inside a container
-                self.dialog_panel.visible = False
-                self.dialog_close_btn.visible = False
-                self.video_export_fps.visible = False
-                self.video_export_fps_label.visible = False
-                self.video_export_color_alive_field.visible = False
-                self.video_export_color_alive_label.visible = False
-                self.video_export_color_dead_field.visible = False
-                self.video_export_color_dead_label.visible = False
-                self.video_export_simulation_steps.visible = False
-                self.video_export_simulation_steps_label.visible = False
-                self.video_export_start_btn.visible = False
-                self.import_btn.visible = False
-                self.import_textfield.visible = False
-                self.import_info.visible = False
-                self.video_export_time_left.visible = False
-                self.video_export_time_left_label.visible = False
-                self.video_export_abort_btn.visible = False
-                self.video_export_progress_bar.visible = False
-                self.video_export_label.visible = False
+                self.close_modal()
             if event.ui_element == self.reset_board_btn:
                 xcells = self.xcells_field.get_text()
                 ycells = self.ycells_field.get_text()
@@ -296,7 +281,6 @@ class UIElements:
                 self.video_export_simulation_steps.visible = setto
                 self.video_export_simulation_steps_label.visible = setto
                 self.video_export_start_btn.visible = setto
-
 
             if event.ui_element == self.video_export_start_btn:
                 # set variables
@@ -321,12 +305,41 @@ class UIElements:
                 self.video_export_time_left_label.visible = True
                 self.video_export_abort_btn.visible = True
                 self.video_export_progress_bar.visible = True
+                self.video_export = VideoExport(self.game, self.ctrl, self.gameloop)
+                self.thread = threading.Thread(target=self.video_export.export)
+                self.thread.start()
             if event.ui_element == self.video_export_abort_btn:
                 self.ctrl.abort_export = True
         if event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
             if event.ui_element == self.speed_field:
                 self.ctrl.set_speed(round(self.speed_field.get_current_value(), 1))
                 self.speed_text.set_text("Speed: " + str(self.ctrl.speed))
-
+    def update(self):
+        self.video_export_time_left.set_text(str(datetime.timedelta(seconds=self.ctrl.estimated_time)))
+        self.video_export_progress_bar.set_text(str(round(self.ctrl.export_progress*100, 2))+" %")
+        if self.ctrl.export_progress == 1:
+            self.close_modal()
+            self.thread.join()
+    def close_modal(self):
+        # turn off everything that could be inside a container
+        self.dialog_panel.visible = False
+        self.dialog_close_btn.visible = False
+        self.video_export_fps.visible = False
+        self.video_export_fps_label.visible = False
+        self.video_export_color_alive_field.visible = False
+        self.video_export_color_alive_label.visible = False
+        self.video_export_color_dead_field.visible = False
+        self.video_export_color_dead_label.visible = False
+        self.video_export_simulation_steps.visible = False
+        self.video_export_simulation_steps_label.visible = False
+        self.video_export_start_btn.visible = False
+        self.import_btn.visible = False
+        self.import_textfield.visible = False
+        self.import_info.visible = False
+        self.video_export_time_left.visible = False
+        self.video_export_time_left_label.visible = False
+        self.video_export_abort_btn.visible = False
+        self.video_export_progress_bar.visible = False
+        self.video_export_label.visible = False
     def get_middle_of_screen(self):
         return int(self.gameloop.surface.get_size()[0] / 2), int(self.gameloop.surface.get_size()[1] / 2)
