@@ -13,6 +13,12 @@ class Controls:
     export_running = False
     estimated_time = 0
     export_progress = 0
+    gpu = False
+    threads = 8
+    current_pattern = "default"
+    target_res = 1080
+    celledit = False
+    target_res_wanted =True
     def __init__(self):
         self.set_speed(self.speed)
 

@@ -38,8 +38,9 @@ def read_board_from_string(board):
     
 #def convert_board_to_string(board):
 def set_cells(cells, value, line, from_y, to_y):
+    #print("from y",from_y, "to_y",to_y, "line", line, "value", value)
     for i in range(len(cells[line])):
-        if(i>= from_y and i<=to_y):
+        if(i>= from_y and i<=to_y-1):
             cells[line][i] = value
 
 def remove_comments(board):
