@@ -80,7 +80,8 @@ def save_csv(times, patterns, name):
     with open("benchmarking/"+name+'.csv', "w") as text_file:
         text_file.write(out)
 
-Path("/benchmarking").mkdir(parents=True, exist_ok=True)
+if not os.path.exists('benchmarking'):
+    os.makedirs('benchmarking')
 iterations = 100
 max_patterns = 10
 gameloop = gameloop.GameLoop()

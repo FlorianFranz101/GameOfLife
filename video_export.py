@@ -21,8 +21,10 @@ class VideoExport:
         stepstaken = 0
         time_start = time.time()
 
-        Path("/videos").mkdir(parents=True, exist_ok=True)
-        Path("/images").mkdir(parents=True, exist_ok=True)
+        if not os.path.exists('images'):
+            os.makedirs('images')
+        if not os.path.exists('videos'):
+            os.makedirs('videos')
         times= []
         max_times =10
         self.export_image1(self.game.cells, "img" + str(stepstaken))
