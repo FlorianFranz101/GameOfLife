@@ -4,6 +4,8 @@ import os
 import time
 import numpy as np
 from PIL import Image
+from pathlib import Path
+
 class VideoExport:
     def __init__(self, game, ctrl, gameloop):
         self.game = game
@@ -19,6 +21,8 @@ class VideoExport:
         stepstaken = 0
         time_start = time.time()
 
+        Path("/videos").mkdir(parents=True, exist_ok=True)
+        Path("/images").mkdir(parents=True, exist_ok=True)
         times= []
         max_times =10
         self.export_image1(self.game.cells, "img" + str(stepstaken))

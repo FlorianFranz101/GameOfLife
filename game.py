@@ -32,9 +32,16 @@ class Game:
     def update(self):
         self.sync_size_and_cells()
         if (self.ctrl.gpu):
-            if cuda.current_context().device == None:
+            gpuAvailable = True
+            try:
+                a = cuda.gpus
+            except:
+                print("there is no CUDA Device")
+                self.ctrl.gpu = False
                 self.update_single()
-            self.update_gpu()
+                gpuAvailable = False
+            if gpuAvailable:
+                self.update_gpu()
             return
         if (self.ctrl.threads == 1):
             self.update_single()
@@ -43,20 +50,23 @@ class Game:
             self.update_multicore(self.ctrl.threads)
 
     def update_single(self):
+        # columns
         sizex = self.ctrl.cellsx
+        # row
         sizey = self.ctrl.cellsy
         # start with a bunch of dead cells (alive = 1, dead=0)
         nxt = np.zeros((sizey, sizex))
-
         for r, c in np.ndindex((sizey, sizex)):
             rm1mod = (r - 1) % sizey
             cm1mod = (c - 1) % sizex
             r1mod = (r + 1) % sizey
             c1mod = (c + 1) % sizex
-            num_alive = self.cells[r, cm1mod] + self.cells[rm1mod, c] + self.cells[rm1mod, cm1mod] + self.cells[
-                r1mod, c1mod] + self.cells[r1mod, c] + self.cells[r1mod, cm1mod] + self.cells[r, c1mod] + self.cells[
-                            rm1mod, c1mod]
-            if (self.cells[r, c] == 1 and 2 <= num_alive <= 3) or (self.cells[r, c] == 0 and num_alive == 3):
+            num_alive = self.cells[r, cm1mod] + self.cells[rm1mod, c] +\
+                        self.cells[rm1mod, cm1mod] + self.cells[r1mod, c1mod] +\
+                        self.cells[r1mod, c] + self.cells[r1mod, cm1mod] +\
+                        self.cells[r, c1mod] + self.cells[rm1mod, c1mod]
+            if (self.cells[r, c] == 1 and 2 <= num_alive <= 3) \
+                    or (self.cells[r, c] == 0 and num_alive == 3):
                 nxt[r, c] = 1
         self.cells = nxt
 

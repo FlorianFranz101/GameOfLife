@@ -1,0 +1,11 @@
+These are the modules that I programmed this application on. They should work
+Python 3.9
+pygame==2.1.2
+pygame-gui==0.6.4
+Pillow==9.0.1
+numba==0.54.1
+numpy==1.22.2
+matplotlib == 3.5.1
+if you want to use CUDA GPU do "conda install cudatoolkit"
+or follow tutorial here: https://numba.readthedocs.io/en/stable/cuda/overview.html#terminology
+If you want additional Patterns visit https://conwaylife.com/wiki/Category:Patterns

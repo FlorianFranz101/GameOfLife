@@ -6,8 +6,10 @@ from os.path import isfile, join
 from video_export import VideoExport
 from rle_converter import read_board_from_string
 import matplotlib.pyplot as plt
+from pathlib import Path
 import pygame
 import sys
+import numpy
 import os
 # start single cpu benchmark no video
 def benchmark(gameloop, iterations, patterns, threads, gpu):
@@ -61,12 +63,24 @@ def import_pattern(gameloop, pattern):
     gameloop.game.cells = cells
 
 def plot_and_save(times, patterns, name):
+    print("plotting")
     fig = plt.figure(figsize=(15,10))
     ax = fig.add_axes([0.1,0.1,0.8,0.8])
     ax.bar(patterns,times[0])
     plt.plot()
+    save_csv(times, patterns, name)
     fig.savefig("benchmarking/"+name+'.png')
+def save_csv(times, patterns, name):
+    out = ""
+    for a in times:
+        out =out + str(a)+","
+    out = out +"\n"
+    for a in patterns:
+        out =out +a+","
+    with open("benchmarking/"+name+'.csv', "w") as text_file:
+        text_file.write(out)
 
+Path("/benchmarking").mkdir(parents=True, exist_ok=True)
 iterations = 100
 max_patterns = 10
 gameloop = gameloop.GameLoop()
